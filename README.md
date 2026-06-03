@@ -11,7 +11,7 @@ A production-style intelligence dashboard for internet infrastructure: IXPs, ASN
 internet-ixp-map/
 ├── backend/          # Python FastAPI — ETL, data orchestration
 │   ├── main.py       # API routes
-│   ├── data_adapters.py  # PeeringDB + RIPEstat + mock fallback
+│   ├── data_adapters.py  # PeeringDB + CAIDA AS-Rank + mock fallback
 │   ├── mock_data.json    # Auto-fallback when live APIs unavailable
 │   └── requirements.txt
 └── frontend/         # Next.js 14 + TypeScript + Tailwind
@@ -99,5 +99,5 @@ Open: http://localhost:3000
 ## Data Sources
 
 - **PeeringDB** (live) — IXP registry, member counts, locations
-- **RIPEstat** (mock enrichment) — ASN prefix counts
+- **CAIDA AS-Rank** (mock enrichment) — ASN prefix counts
 - **TeleGeography** (mock) — Submarine cable routes; no public event-level API

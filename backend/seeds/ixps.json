@@ -1,6 +1,6 @@
 {
   "source": "peeringdb",
-  "fetched_at": "2026-06-01T06:53:18.710963+00:00",
+  "fetched_at": "2026-06-03T07:38:18.869512+00:00",
   "data": [
     {
       "peeringdb_id": 1,
@@ -41,7 +41,7 @@
       "status": "ok",
       "lat": 41.85365,
       "lon": -87.618342,
-      "member_count": 298,
+      "member_count": 300,
       "tier": "large",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/2"
@@ -129,7 +129,7 @@
       "status": "ok",
       "lat": 37.445896,
       "lon": -122.160775,
-      "member_count": 77,
+      "member_count": 75,
       "tier": "medium",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/7"
@@ -239,7 +239,7 @@
       "status": "ok",
       "lat": 40.717723,
       "lon": -74.008299,
-      "member_count": 228,
+      "member_count": 227,
       "tier": "large",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/14"
@@ -371,7 +371,7 @@
       "status": "ok",
       "lat": 43.644672,
       "lon": -79.384128,
-      "member_count": 277,
+      "member_count": 276,
       "tier": "large",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/24"
@@ -393,7 +393,7 @@
       "status": "ok",
       "lat": 52.356394,
       "lon": 4.950837,
-      "member_count": 992,
+      "member_count": 986,
       "tier": "mega",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/26"
@@ -437,7 +437,7 @@
       "status": "ok",
       "lat": 35.686406,
       "lon": 139.764809,
-      "member_count": 320,
+      "member_count": 321,
       "tier": "large",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/30"
@@ -459,7 +459,7 @@
       "status": "ok",
       "lat": 50.11925,
       "lon": 8.735199,
-      "member_count": 1228,
+      "member_count": 1229,
       "tier": "mega",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/31"
@@ -547,7 +547,7 @@
       "status": "ok",
       "lat": 22.41966,
       "lon": 114.206315,
-      "member_count": 337,
+      "member_count": 336,
       "tier": "large",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/42"
@@ -723,7 +723,7 @@
       "status": "ok",
       "lat": 47.432702,
       "lon": 8.557273,
-      "member_count": 301,
+      "member_count": 302,
       "tier": "large",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/60"
@@ -833,7 +833,7 @@
       "status": "ok",
       "lat": 59.362574,
       "lon": 17.955657,
-      "member_count": 192,
+      "member_count": 193,
       "tier": "large",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/70"
@@ -1053,7 +1053,7 @@
       "status": "ok",
       "lat": 52.50192,
       "lon": 13.36945,
-      "member_count": 171,
+      "member_count": 170,
       "tier": "large",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/87"
@@ -1075,7 +1075,7 @@
       "status": "ok",
       "lat": 22.266098,
       "lon": 114.246512,
-      "member_count": 12,
+      "member_count": 13,
       "tier": "small",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/88"
@@ -1207,7 +1207,7 @@
       "status": "ok",
       "lat": 35.617432,
       "lon": 139.748106,
-      "member_count": 300,
+      "member_count": 302,
       "tier": "large",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/95"
@@ -1405,7 +1405,7 @@
       "status": "ok",
       "lat": 22.365581,
       "lon": 114.11932,
-      "member_count": 302,
+      "member_count": 303,
       "tier": "large",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/125"
@@ -1427,7 +1427,7 @@
       "status": "ok",
       "lat": 35.687467,
       "lon": 139.779481,
-      "member_count": 432,
+      "member_count": 433,
       "tier": "large",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/126"
@@ -1669,7 +1669,7 @@
       "status": "ok",
       "lat": 1.295229,
       "lon": 103.789842,
-      "member_count": 605,
+      "member_count": 604,
       "tier": "mega",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/158"
@@ -1691,7 +1691,7 @@
       "status": "ok",
       "lat": 45.521366,
       "lon": -122.680792,
-      "member_count": 108,
+      "member_count": 107,
       "tier": "large",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/165"
@@ -1757,7 +1757,7 @@
       "status": "ok",
       "lat": -23.65071,
       "lon": -46.720519,
-      "member_count": 2432,
+      "member_count": 2429,
       "tier": "mega",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/171"
@@ -1801,7 +1801,7 @@
       "status": "ok",
       "lat": -30.028618,
       "lon": -51.230161,
-      "member_count": 264,
+      "member_count": 266,
       "tier": "large",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/173"
@@ -1823,7 +1823,7 @@
       "status": "ok",
       "lat": -25.470318,
       "lon": -49.350347,
-      "member_count": 195,
+      "member_count": 196,
       "tier": "large",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/174"
@@ -1845,7 +1845,7 @@
       "status": "ok",
       "lat": -27.600777,
       "lon": -48.593791,
-      "member_count": 107,
+      "member_count": 108,
       "tier": "large",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/175"
@@ -1889,7 +1889,7 @@
       "status": "ok",
       "lat": -22.529901,
       "lon": -43.217133,
-      "member_count": 618,
+      "member_count": 617,
       "tier": "mega",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/177"
@@ -2175,7 +2175,7 @@
       "status": "ok",
       "lat": -6.238125,
       "lon": 106.824443,
-      "member_count": 795,
+      "member_count": 796,
       "tier": "mega",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/210"
@@ -3055,7 +3055,7 @@
       "status": "ok",
       "lat": 40.717723,
       "lon": -74.008299,
-      "member_count": 59,
+      "member_count": 58,
       "tier": "medium",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/325"
@@ -3143,7 +3143,7 @@
       "status": "ok",
       "lat": 42.702735,
       "lon": 23.306259,
-      "member_count": 182,
+      "member_count": 183,
       "tier": "large",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/331"
@@ -3297,7 +3297,7 @@
       "status": "ok",
       "lat": 50.09885,
       "lon": 8.632004,
-      "member_count": 674,
+      "member_count": 673,
       "tier": "mega",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/358"
@@ -3319,7 +3319,7 @@
       "status": "ok",
       "lat": 48.856654,
       "lon": 2.38532,
-      "member_count": 507,
+      "member_count": 506,
       "tier": "mega",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/359"
@@ -3583,7 +3583,7 @@
       "status": "ok",
       "lat": -22.850918,
       "lon": -47.154706,
-      "member_count": 45,
+      "member_count": 44,
       "tier": "medium",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/415"
@@ -3913,7 +3913,7 @@
       "status": "ok",
       "lat": 52.184865,
       "lon": 20.998078,
-      "member_count": 190,
+      "member_count": 191,
       "tier": "large",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/481"
@@ -4265,7 +4265,7 @@
       "status": "ok",
       "lat": -29.165828,
       "lon": -51.171375,
-      "member_count": 13,
+      "member_count": 14,
       "tier": "small",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/558"
@@ -4529,7 +4529,7 @@
       "status": "ok",
       "lat": -33.970872,
       "lon": 18.465223,
-      "member_count": 368,
+      "member_count": 369,
       "tier": "large",
       "source": "peeringdb",
       "source_url": "https://www.peeringdb.com/ix/597"

@@ -11,7 +11,7 @@ export default function TitleBar() {
       <span className="text-[10px] font-mono border border-rr-border px-1.5 py-0.5 rounded text-rr-muted">
         Real Rails Intelligence Library
       </span>
-      {['PeeringDB', 'TeleGeography', 'RIPEstat'].map(s => (
+      {['PeeringDB', 'TeleGeography', 'CAIDA AS-Rank'].map(s => (
         <span key={s} className="text-[10px] font-mono border border-rr-border px-1.5 py-0.5 rounded text-rr-muted">
           {s}
         </span>

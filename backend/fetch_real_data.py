@@ -4,12 +4,13 @@ backend/fetch_real_data.py
 Run once: cd backend && python fetch_real_data.py
 """
 
-import json, sys, logging, socket
+import json, sys, logging, socket , math
 from collections import Counter, defaultdict
 from pathlib import Path
 from datetime import datetime, timezone
 
 import requests
+
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s  %(message)s")
 log = logging.getLogger("fetch_real_data")
@@ -38,6 +39,44 @@ SESSION.headers.update({
 # CORRECT FIX: /api/netixlan?depth=0&fields=ix_id,net_id
 # Returns every network-to-IXP association as a flat list in ONE request.
 # Group by ix_id → count = real member_count for each IXP.
+
+def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Great-circle distance in km between two lat/lon points."""
+    R = 6371.0
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = (math.sin(dlat / 2) ** 2
+         + math.cos(math.radians(lat1))
+         * math.cos(math.radians(lat2))
+         * math.sin(dlon / 2) ** 2)
+    return R * 2 * math.asin(math.sqrt(min(1.0, a)))
+ 
+ 
+def _lp_near_cable(
+    lp_lat: float,
+    lp_lon: float,
+    route_coords: list,
+    threshold_km: float = 100.0,
+) -> bool:
+    """
+    Returns True if the landing point is within threshold_km of any
+    cable route endpoint (first or last 10 coordinate pairs).
+ 
+    We only check endpoints, not the middle of the route, because:
+    - Landing points are where cables come ashore (endpoints)
+    - The middle of a cable route is open ocean
+    - Checking only endpoints is 10x faster and more accurate
+    """
+    if not route_coords:
+        return False
+    # Check first 10 + last 10 coordinate pairs (the cable ends)
+    endpoints = route_coords[:10] + route_coords[-10:]
+    for coord in endpoints:
+        if len(coord) >= 2:
+            d = _haversine_km(lp_lat, lp_lon, coord[0], coord[1])
+            if d <= threshold_km:
+                return True
+    return False
 
 def _fetch_member_counts() -> dict[int, int]:
     log.info("  Pre-fetching member counts via /api/netixlan…")
@@ -220,8 +259,10 @@ def fetch_peeringdb_ixps() -> list[dict]:
 # ─── 2. TeleGeography cables ─────────────────────────────────────────────────
 
 def fetch_telegeography_cables() -> tuple[list[dict], list[dict]]:
-    log.info("Fetching TeleGeography cables…")
-
+    log.info("Fetching TeleGeography cables + landing points…")
+ 
+    # ── Step 1: Cable route geometries ───────────────────────────────────────
+    log.info("  Fetching cable-geo.json…")
     try:
         gr = SESSION.get(
             "https://www.submarinecablemap.com/api/v3/cable/cable-geo.json",
@@ -229,11 +270,12 @@ def fetch_telegeography_cables() -> tuple[list[dict], list[dict]]:
         )
         gr.raise_for_status()
         geo_features = gr.json().get("features", [])
-        log.info(f"  Got {len(geo_features)} geometry features")
+        log.info(f"  Got {len(geo_features)} cable geometry features")
     except Exception as e:
-        log.error(f"  GeoJSON failed: {e}")
+        log.error(f"  cable-geo.json failed: {e}")
         geo_features = []
-
+ 
+    # slug → route coordinates AND slug → cable name (for logging)
     slug_to_coords: dict[str, list] = {}
     for feat in geo_features:
         props = feat.get("properties", {})
@@ -243,9 +285,10 @@ def fetch_telegeography_cables() -> tuple[list[dict], list[dict]]:
         coords = _extract_cable_coords(feat.get("geometry", {}))
         if coords:
             slug_to_coords[slug] = coords
-
-    log.info(f"  Coords extracted for {len(slug_to_coords)} cables")
-
+    log.info(f"  Route geometry for {len(slug_to_coords)} cables")
+ 
+    # ── Step 2: Cable metadata ────────────────────────────────────────────────
+    log.info("  Fetching cable/all.json…")
     try:
         lr = SESSION.get(
             "https://www.submarinecablemap.com/api/v3/cable/all.json",
@@ -253,61 +296,164 @@ def fetch_telegeography_cables() -> tuple[list[dict], list[dict]]:
         )
         lr.raise_for_status()
         cable_list = lr.json()
-        log.info(f"  Metadata for {len(cable_list)} cables")
+        log.info(f"  Got {len(cable_list)} cable metadata records")
     except Exception as e:
-        log.error(f"  Cable list failed: {e}")
+        log.error(f"  cable/all.json failed: {e}")
         cable_list = []
-
-    cables = []
-    landing_points = []
-
+ 
+    # slug → name (needed for landing point records)
+    slug_to_name = {c.get("id", ""): c.get("name", "") for c in cable_list}
+ 
+    # ── Step 3: Landing point coordinates ────────────────────────────────────
+    log.info("  Fetching landing-point-geo.json…")
+    lp_records: list[dict] = []   # {id, name, city, country, lat, lon}
+ 
+    try:
+        lpr = SESSION.get(
+            "https://www.submarinecablemap.com/api/v3/landing-point/landing-point-geo.json",
+            timeout=30,
+        )
+        lpr.raise_for_status()
+        lp_features = lpr.json().get("features", [])
+        log.info(f"  Got {len(lp_features)} landing point features")
+ 
+        for feat in lp_features:
+            props  = feat.get("properties", {})
+            geom   = feat.get("geometry", {})
+            lp_id  = props.get("id", "")
+            if not lp_id:
+                continue
+            coords = geom.get("coordinates", [])
+            lp_lon = coords[0] if len(coords) >= 2 else None
+            lp_lat = coords[1] if len(coords) >= 2 else None
+            if lp_lat is None or lp_lon is None:
+                continue
+ 
+            full_name   = props.get("name", "")
+            name_parts  = full_name.split(",")
+            city        = name_parts[0].strip()
+            country     = name_parts[-1].strip() if len(name_parts) > 1 else ""
+ 
+            lp_records.append({
+                "id":      lp_id,
+                "name":    full_name,
+                "city":    city,
+                "country": country,
+                "lat":     float(lp_lat),
+                "lon":     float(lp_lon),
+            })
+ 
+        log.info(f"  Parsed {len(lp_records)} landing points with coordinates")
+ 
+    except Exception as e:
+        log.error(f"  landing-point-geo.json failed: {e}")
+        log.warning("  connected_cables will use city-proximity fallback")
+ 
+    # ── Step 4: Spatial join — LP ↔ cable ─────────────────────────────────────
+    # For each landing point, find cables whose route endpoint is within 50km.
+    # Cable endpoints (first/last 10 coords) = where cables come ashore.
+    log.info(
+        f"  Running spatial join: {len(lp_records)} LPs × "
+        f"{len(slug_to_coords)} cable routes…"
+    )
+ 
+    THRESHOLD_KM = 100.0
+ 
+    landing_points: list[dict] = []       # seed records
+    city_to_cables: dict[str, list] = {}  # city → [cable names] for data_adapters
+ 
+    for lp in lp_records:
+        lp_lat  = lp["lat"]
+        lp_lon  = lp["lon"]
+        lp_city = lp["city"]
+ 
+        matched_cables: list[str] = []
+ 
+        for slug, route in slug_to_coords.items():
+            if _lp_near_cable(lp_lat, lp_lon, route, THRESHOLD_KM):
+                cable_name = slug_to_name.get(slug, slug)
+                matched_cables.append(cable_name)
+                landing_points.append({
+                    "id":         lp["id"],
+                    "name":       lp["name"],
+                    "city":       lp_city,
+                    "country":    lp["country"],
+                    "lat":        lp_lat,
+                    "lon":        lp_lon,
+                    "cable_id":   slug,
+                    "cable_name": cable_name,
+                    "match_method": "spatial_50km",  # provenance label
+                })
+ 
+        if matched_cables and lp_city:
+            city_to_cables.setdefault(lp_city, [])
+            for cn in matched_cables:
+                if cn not in city_to_cables[lp_city]:
+                    city_to_cables[lp_city].append(cn)
+ 
+    lps_with_match = len({lp["id"] for lp in landing_points})
+    log.info(
+        f"  Spatial join complete: "
+        f"{len(landing_points)} LP↔cable associations, "
+        f"{lps_with_match}/{len(lp_records)} LPs matched, "
+        f"{len(city_to_cables)} cities"
+    )
+    if city_to_cables:
+        sample = list(city_to_cables.items())[:3]
+        for city, cables in sample:
+            log.info(f"  Sample: '{city}' → {cables[:3]}")
+ 
+    # ── Step 5: Build cable records with LP city names ────────────────────────
+    cables: list[dict] = []
+    # Build slug → LP city names from spatial join results
+    slug_to_lp_cities: dict[str, list] = {}
+    for lp in landing_points:
+        slug = lp["cable_id"]
+        city = lp["city"]
+        slug_to_lp_cities.setdefault(slug, [])
+        if city and city not in slug_to_lp_cities[slug]:
+            slug_to_lp_cities[slug].append(city)
+ 
     for cable in cable_list:
         slug = cable.get("id", "")
         if not slug:
             continue
-
+ 
         owners_list = cable.get("owners", [])
         owners_str  = ", ".join(
             o.get("name", "") for o in owners_list
             if isinstance(o, dict) and o.get("name")
         ) if isinstance(owners_list, list) else ""
-
+ 
         rfs = cable.get("rfs")
         if isinstance(rfs, str) and rfs.isdigit():
             rfs = int(rfs)
         elif not isinstance(rfs, (int, type(None))):
             rfs = None
-
-        lp_list = cable.get("landing_points", [])
-        for lp in (lp_list if isinstance(lp_list, list) else []):
-            if not isinstance(lp, dict):
-                continue
-            lp_lat = lp.get("lat") or lp.get("latitude")
-            lp_lon = lp.get("lng") or lp.get("lon") or lp.get("longitude")
-            landing_points.append({
-                "id": lp.get("id", ""), "name": lp.get("name", ""),
-                "country": lp.get("country", ""),
-                "lat": float(lp_lat) if lp_lat else None,
-                "lon": float(lp_lon) if lp_lon else None,
-                "cable_id": slug, "cable_name": cable.get("name", ""),
-            })
-
+ 
         cables.append({
-            "id": slug, "name": cable.get("name", ""),
-            "color": cable.get("color", "#38BDF8"), "rfs": rfs,
-            "length_km": cable.get("length"), "owners": owners_str,
-            "owners_list": owners_list if isinstance(owners_list, list) else [],
-            "landing_points": lp_list if isinstance(lp_list, list) else [],
-            "notes": cable.get("notes", ""),
-            "coords": slug_to_coords.get(slug, []),
-            "source": "telegeography",
-            "source_url": f"https://www.submarinecablemap.com/submarine-cable/{slug}",
+            "id":                  slug,
+            "name":                cable.get("name", ""),
+            "color":               cable.get("color", "#38BDF8"),
+            "rfs":                 rfs,
+            "length_km":           cable.get("length"),
+            "owners":              owners_str,
+            "owners_list":         owners_list if isinstance(owners_list, list) else [],
+            "landing_point_names": slug_to_lp_cities.get(slug, []),  # from spatial join
+            "notes":               cable.get("notes", ""),
+            "coords":              slug_to_coords.get(slug, []),
+            "source":              "telegeography",
+            "source_url":          f"https://www.submarinecablemap.com/submarine-cable/{slug}",
         })
-
-    log.info(f"  {len(cables)} cables, "
-             f"{sum(1 for c in cables if c['coords'])} with geometry, "
-             f"{len(landing_points)} landing points")
+ 
+    cables_with_coords = sum(1 for c in cables if c["coords"])
+    log.info(
+        f"  Final: {len(cables)} cables, "
+        f"{cables_with_coords} with geometry, "
+        f"{len(landing_points)} landing point records"
+    )
     return cables, landing_points
+ 
 
 
 def _extract_cable_coords(geom: dict) -> list:

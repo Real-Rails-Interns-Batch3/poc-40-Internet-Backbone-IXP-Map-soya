@@ -87,7 +87,7 @@ def _load_seed(name: str) -> dict:
             f"to fetch real data from PeeringDB, TeleGeography, and CAIDA."
         )
     with open(path) as f:
-        return json.load(f)
+        return json.loads(path.read_text(encoding="utf-8"))
 
 
 def _ixps() -> list[dict]:
@@ -151,9 +151,15 @@ def get_ixp_geojson(
             continue
 
         city = ix.get("city", "")
-        connected_cables = (
-            lp_city_to_cables.get(city, [])
-            or CITY_CABLE_PROXIMITY.get(city, [])
+        tg_cables = lp_city_to_cables.get(city, [])
+        if tg_cables:
+            connected_cables        = tg_cables
+            connected_cables_source = "telegeography_landing_points"
+        else:
+            connected_cables        = CITY_CABLE_PROXIMITY.get(city, [])
+            connected_cables_source = (
+                "city_proximity_fallback" if connected_cables else "none"
+            
         )
 
         features.append({
@@ -180,7 +186,8 @@ def get_ixp_geojson(
                 "source": "peeringdb",
                 "source_url": ix.get("source_url", ""),
                 # ── Derived from real cable landing data ───────────────────
-                "connected_cables": connected_cables,
+                "connected_cables":        connected_cables,
+                "connected_cables_source": connected_cables_source,
                 # ── Fields not available from public APIs (honest nulls) ───
                 "traffic_tbps": None,       # NOT in PeeringDB
                 "risk_score": _compute_risk_score(
@@ -195,22 +202,57 @@ def get_ixp_geojson(
     return {"type": "FeatureCollection", "features": features}
 
 
+
 def _build_city_cable_map() -> dict[str, list[str]]:
     """
-    Build city → [cable names] map from real TeleGeography landing points.
+    Build city → [cable names] map from real TeleGeography data.
+
+    THREE sources tried in order (best data first):
+
+    Source 1 — landing_points.json (most accurate)
+      Each record: {city, cable_name, lat, lon}
+      Built by joining cable/all.json LP arrays with landing-point-geo.json coords.
+      city field is the first part of LP name e.g. "Nybor, Denmark" → "Nybor"
+
+    Source 2 — cables.json landing_point_names field
+      Each cable record has landing_point_names: ['Nybor', 'Blaabjerg', ...]
+      These are LP city names extracted during fetch.
+      Used when landing_points.json is empty.
+
+    Source 3 — CITY_CABLE_PROXIMITY (hardcoded fallback)
+      Only used when Sources 1 + 2 both return nothing for a city.
+      Labeled as 'city_proximity_fallback' in the API response.
     """
     city_cables: dict[str, set] = {}
+
+    # Source 1: dedicated landing_points.json
     try:
-        for lp in _landing_points():
-            city = lp.get("name", "").split(",")[0].strip()
-            cable_name = lp.get("cable_name", "")
-            if city and cable_name:
-                city_cables.setdefault(city, set()).add(cable_name)
-    except FileNotFoundError:
-        return {}
+        lp_data = _landing_points()
+        if lp_data:
+            for lp in lp_data:
+                city       = lp.get("city", "") or lp.get("name", "").split(",")[0].strip()
+                cable_name = lp.get("cable_name", "")
+                if city and cable_name:
+                    city_cables.setdefault(city, set()).add(cable_name)
+            log.debug(f"_build_city_cable_map: Source 1 gave {len(city_cables)} cities")
+    except Exception:
+        pass
+
+    # Source 2: landing_point_names on cable records
+    try:
+        cable_data = _cables()
+        if cable_data:
+            for cable in cable_data:
+                cable_name = cable.get("name", "")
+                for city in cable.get("landing_point_names", []):
+                    city = city.strip()
+                    if city and cable_name:
+                        city_cables.setdefault(city, set()).add(cable_name)
+            log.debug(f"_build_city_cable_map: after Source 2 have {len(city_cables)} cities")
+    except Exception:
+        pass
+
     return {city: sorted(cables) for city, cables in city_cables.items()}
-
-
 # ─── Submarine Cables GeoJSON ─────────────────────────────────────────────────
 
 def get_submarine_cables_geojson(owner: Optional[str] = None) -> dict:
@@ -355,10 +397,18 @@ def get_ixp_intelligence(ixp_id: str) -> dict:
     max_members = max((i.get("member_count", 0) for i in all_ixps), default=0)
     risk_score  = _compute_risk_score(members, tier, max_members)
  
-    connected_cables = (
-        _build_city_cable_map().get(city, [])
-        or CITY_CABLE_PROXIMITY.get(city, [])
-    )
+    lp_map = _build_city_cable_map()
+    tg_cables_intel = lp_map.get(city, [])
+    if tg_cables_intel:
+        connected_cables        = tg_cables_intel
+        connected_cables_source = "TeleGeography landing point data"
+    else:
+        connected_cables        = CITY_CABLE_PROXIMITY.get(city, [])
+        connected_cables_source = (
+            "City-proximity fallback (re-run fetch_real_data.py for TeleGeography data)"
+            if connected_cables else "No data available"
+        )
+ 
 
     return {
         # ── From PeeringDB (real) ─────────────────────────────────────────
