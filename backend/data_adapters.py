@@ -429,7 +429,7 @@ def get_ixp_intelligence(ixp_id: str) -> dict:
         "risk_score_method": "Derived: (member_count / max_members * 60) + tier_weight",
         # ── From TeleGeography proximity (labeled) ────────────────────────
         "connected_cables": connected_cables,
-        "connected_cables_source": "TeleGeography landing point city-proximity match",
+        "connected_cables_source": connected_cables_source,
         # ── Fields NOT available from public APIs (honest nulls) ──────────
         "traffic_tbps": None,
         "traffic_tbps_note": "Not available from PeeringDB API. Published by each IXP on their own website.",

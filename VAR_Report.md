@@ -4,71 +4,135 @@
 
 ---
 
-## Executive Summary
+# Executive Summary
 
-The current implementation successfully visualizes global Internet infrastructure using real-world data sources. The dashboard aligns with the Real Rails Intelligence Library objectives and demonstrates strong geographic intelligence through Internet Exchange Points (IXPs), submarine cable routes, and ASN concentration analysis.
+The current implementation successfully visualizes global Internet infrastructure using real-world datasets from PeeringDB, TeleGeography, and CAIDA AS-Rank.
 
-The application follows the required Obsidian-style design language and provides a production-quality user experience.
+The dashboard presents Internet Exchange Points (IXPs), submarine cable infrastructure, landing-point intelligence, ASN concentration metrics, and route-failure analysis through an interactive geographic intelligence interface.
+
+The application follows the required Real Rails Intelligence Library design language and delivers a production-style intelligence dashboard suitable for Phase 1 evaluation.
 
 ---
 
-## 1. Requirement Match
+# 1. Requirement Match
 
 **Status:** ✅ PASS
 
-- Global IXP visualization implemented.
-- Submarine cable routes represented using TeleGeography data.
-- ASN concentration and route control analysis displayed.
-- Geographic intelligence is clearly communicated.
-- Dashboard successfully explains:
-  - What the data shows
-  - Who controls the rail
-  - Why it matters
+### Implemented Capabilities
+
+* Global IXP visualization using PeeringDB data.
+* Real submarine cable route visualization using TeleGeography.
+* Landing-point intelligence generated through spatial matching.
+* ASN concentration and route-control analysis using CAIDA AS-Rank.
+* Route failure simulation and dependency analysis.
+* Interactive filtering and exploration controls.
+
+### Intelligence Objectives Achieved
+
+The dashboard clearly communicates:
+
+* What the infrastructure is
+* Where critical Internet exchange hubs exist
+* How submarine cable systems connect regions
+* Which networks control significant portions of global routing
+* Why concentration risk matters
 
 ---
 
-## 2. DNA Compliance
+# 2. DNA Compliance
 
 **Status:** ✅ PASS
 
-- Obsidian-inspired dark intelligence theme maintained.
-- Layout closely follows the required 70/30 structure.
-- Dashboard presents a professional intelligence-platform appearance.
-- Information hierarchy is clear and consistent.
+### Design Requirements
+
+* Obsidian-inspired intelligence theme implemented.
+* 70/30 map-to-intelligence layout maintained.
+* Glassmorphism styling applied consistently.
+* Professional intelligence-platform appearance achieved.
+* Responsive interaction and filtering behavior implemented.
+
+### User Experience
+
+* Interactive geographic exploration.
+* Contextual intelligence panels.
+* Clear visual hierarchy.
+* Fast navigation without page reloads.
 
 ---
 
-## 3. Data Mapping
+# 3. Data Mapping
 
 **Status:** ✅ PASS
 
-- PeeringDB data represented through IXP locations and membership metrics.
-- TeleGeography data represented through submarine cable routes.
-- CAIDA AS-Rank data represented through ASN concentration and route-control analysis.
-- Data-to-visual mapping is accurate and supports exploration.
+### PeeringDB
+
+* 215 Internet Exchange Points visualized.
+* Membership counts, locations, and metadata represented accurately.
+
+### TeleGeography
+
+* 694 submarine cable records visualized.
+* Cable route geometries rendered on the global map.
+* Landing-point intelligence generated using spatial matching between cable routes and landing-point coordinates.
+
+### CAIDA AS-Rank
+
+* ASN concentration metrics calculated using customer-cone data.
+* Top operators ranked by routing influence.
+* Herfindahl-Hirschman Index (HHI) calculated for concentration analysis.
+
+### Data Integrity
+
+Visual elements correspond directly to underlying source datasets and support meaningful exploration.
 
 ---
 
-## 4. Dashboard Quality
+# 4. Dashboard Quality
 
 **Status:** ✅ PASS
 
-- Interactive global map provides strong visual impact.
-- Intelligence side panel effectively summarizes findings.
-- Filtering and exploration controls improve usability.
-- Suitable for Phase 1 review and demonstration.
+### Strengths
+
+* Strong geographic visualization of Internet infrastructure.
+* Real-world datasets integrated successfully.
+* Intelligence sidebar effectively summarizes key findings.
+* Infrastructure concentration risks are clearly communicated.
+* Interactive map provides immediate analytical value.
+
+### Technical Quality
+
+* FastAPI backend architecture.
+* Next.js frontend implementation.
+* Real-data ingestion pipeline.
+* Automatic fallback mechanisms where appropriate.
+* Modular intelligence generation functions.
 
 ---
 
-## 5. Enhancement Opportunities
+# 5. Enhancement Opportunities
 
 **Status:** OPTIONAL FUTURE ENHANCEMENTS
 
-- Additional facility-level visualization could provide deeper infrastructure context.
-- Landing-point visibility could further enrich cable intelligence views.
-- Expanded drill-down interactions may improve future versions.
+Potential future improvements include:
 
-> These enhancements are considered optional and do not affect the current dashboard's ability to satisfy the core objectives of the POC.
+* Facility-level infrastructure visualization.
+* Real-time outage and incident feeds.
+* ASN path visualization and dependency graphs.
+* Historical infrastructure growth analysis.
+* Dynamic traffic and capacity datasets where publicly available.
+
+These enhancements are optional and do not impact compliance with the current POC requirements.
+
+---
+
+# Dataset Summary
+
+| Dataset                      | Records        |
+| ---------------------------- | -------------- |
+| PeeringDB IXPs               | 215          |
+| TeleGeography Cables         | 694            |
+| TeleGeography Landing Points | 1,900+         |
+| CAIDA AS-Rank ASNs           | Active dataset |
 
 ---
 
@@ -76,17 +140,20 @@ The application follows the required Obsidian-style design language and provides
 
 ## ✅ PASS
 
-The dashboard successfully satisfies the primary objectives of **POC #40**.
+The dashboard successfully satisfies the objectives of **POC #40 – Internet Backbone & IXP Map**.
 
-It demonstrates:
+The implementation demonstrates:
 
-- Effective use of real infrastructure datasets
-- Meaningful intelligence insights
-- Strong visual quality
+* Integration of real infrastructure datasets
+* Meaningful intelligence generation
+* Strong geographic visualization
+* Production-style dashboard quality
+* Compliance with Real Rails Intelligence Library requirements
 
 The project is suitable for submission and Phase 1 evaluation.
 
 ---
 
-**Overall Assessment:** PASS  
+**Overall Assessment:** PASS
+
 **Submission Status:** Approved for Phase 1 Review

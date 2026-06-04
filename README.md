@@ -1,103 +1,237 @@
 # Internet Backbone & IXP Map
-### Real Rails Intelligence Library — PoC: Data & Intelligence
 
-A production-style intelligence dashboard for internet infrastructure: IXPs, ASNs, submarine cables, and path concentration metrics.
+**Real Rails Intelligence Library — PoC: Data & Intelligence**
+
+A production-style intelligence dashboard for analyzing global internet infrastructure, including Internet Exchange Points (IXPs), Autonomous Systems (ASNs), submarine cable networks, route concentration metrics, and infrastructure dependency intelligence.
 
 ---
 
-## Architecture
+# Architecture
 
-```
+```text
 internet-ixp-map/
-├── backend/          # Python FastAPI — ETL, data orchestration
-│   ├── main.py       # API routes
-│   ├── data_adapters.py  # PeeringDB + CAIDA AS-Rank + mock fallback
-│   ├── mock_data.json    # Auto-fallback when live APIs unavailable
+├── backend/                      # Python FastAPI — ETL & Intelligence APIs
+│   ├── main.py                   # API routes
+│   ├── data_adapters.py          # PeeringDB + CAIDA + TeleGeography adapters
+│   ├── fetch_real_data.py        # Data ingestion & seed generation
+│   ├── seeds/
+│   │   ├── ixps.json
+│   │   ├── cables.json
+│   │   ├── landing_points.json
+│   │   └── asns.json
 │   └── requirements.txt
-└── frontend/         # Next.js 14 + TypeScript + Tailwind
-    ├── src/app/      # App Router
+│
+└── frontend/                     # Next.js 14 + TypeScript + Tailwind
+    ├── src/app/
     ├── src/components/
-    │   ├── IXPMap.tsx    # Leaflet map (70% stage)
-    │   ├── Sidebar.tsx   # Intelligence sidebar (30%)
-    │   └── TitleBar.tsx
-    └── src/lib/api.ts    # FastAPI client
+    │   ├── IXPMap.tsx
+    │   ├── Sidebar.tsx
+    │   ├── TitleBar.tsx
+    │   └── IntelligencePanel.tsx
+    └── src/lib/api.ts
 ```
 
 ---
 
-## Quick Start
+# Quick Start
 
-### 1. Backend
+## Backend
 
 ```bash
 cd backend
+
 pip install -r requirements.txt
+
+python fetch_real_data.py
+
 uvicorn main:app --reload --port 8000
 ```
 
-API docs: http://localhost:8000/docs
+API Documentation:
 
-### 2. Frontend
+```text
+http://localhost:8000/docs
+```
+
+---
+
+## Frontend
 
 ```bash
 cd frontend
+
 cp .env.example .env.local
+
 npm install
+
 npm run dev
 ```
 
-Open: http://localhost:3000
+Open:
+
+```text
+http://localhost:3000
+```
 
 ---
 
-## Features
+# Current Dataset
 
-- **IXP Map** — 14 global IXPs with Leaflet, tier-based coloring, hover tooltips
-- **Submarine Cables** — 7 transoceanic routes with capacity visualization
-- **ASN Concentration** — Top-10 operators, Herfindahl index, route concentration bar
-- **Route Failure Simulation** — Click to simulate AS failure; map turns red
-- **Smart Filters** — Tier filter, layer toggles; map updates without page refresh
-- **Intelligence Sidebar** — Why It Matters / Who Controls the Rail panels
-- **Download Sample Data** — One-click CSV export
-- **Mock Fallback** — PeeringDB/RIPEstat errors auto-fall back to `mock_data.json`
+| Dataset                    | Count                          | Source        |
+| -------------------------- | ------------------------------ | ------------- |
+| IXPs                       | 215                            | PeeringDB     |
+| Submarine Cables           | 694                            | TeleGeography |
+| ASN Rankings               | 100                            | CAIDA AS-Rank |
+| Landing Point Associations | Generated via spatial matching | TeleGeography |
 
 ---
 
-## Real Rails DNA Compliance
+# Features
 
-| Requirement | Status |
-|---|---|
-| Background #030712 | ✅ |
-| Sidebar exactly 30% | ✅ |
-| Filters update without page refresh | ✅ |
-| Glassmorphism on cards | ✅ |
-| Cyan glow on active elements | ✅ |
-| No hardcoded API keys | ✅ .env only |
-| Mock fallback on API error | ✅ Automatic |
-| Professional projection library | ✅ Leaflet |
-| Why This Matters panel | ✅ |
-| Who Controls the Rail panel | ✅ |
-| Download Sample Data button | ✅ |
+### Internet Exchange Point Intelligence
+
+* 215 global IXPs sourced from PeeringDB
+* Tier-based classification (Mega, Large, Medium)
+* Risk scoring based on member concentration
+* Per-IXP intelligence panel
+* Interactive hover and click inspection
+
+### Submarine Cable Intelligence
+
+* 694 submarine cable systems
+* Real cable geometries from TeleGeography
+* Cable route visualization
+* Landing-point-to-cable associations generated through spatial matching
+* Cable ownership and metadata display
+
+### ASN Concentration Analysis
+
+* CAIDA AS-Rank integration
+* Top-10 operator concentration metrics
+* Route dependency analysis
+* Herfindahl–Hirschman Index (HHI)
+* Global routing concentration insights
+
+### Infrastructure Risk Intelligence
+
+* Risk scoring for major IXPs
+* Concentration risk indicators
+* Route failure simulation
+* Infrastructure dependency analysis
+
+### Interactive Controls
+
+* Region filters
+* Risk-level filters
+* Layer toggles
+* Live intelligence updates without page refresh
+
+### Intelligence Sidebar
+
+* Why This Matters panel
+* Who Controls The Rail analysis
+* Infrastructure concentration metrics
+* Top ASN operators dashboard
+
+### Data Export
+
+* CSV export support
+* Intelligence data download
 
 ---
 
-## API Endpoints
+# Real Data Sources
 
-| Endpoint | Description |
-|---|---|
-| `GET /api/ixps/geojson` | IXP GeoJSON (filters: country, min_members) |
-| `GET /api/cables/geojson` | Submarine cable routes |
-| `GET /api/asns` | ASN data with route enrichment |
-| `GET /api/metrics/concentration` | Herfindahl index, top-10 control % |
-| `GET /api/simulation/route-failure` | Route failure impact simulation |
-| `GET /api/facilities` | Data center / facility cards |
-| `GET /api/intelligence/sidebar` | Pre-computed insight blocks |
-| `GET /api/download/sample` | CSV download |
+## PeeringDB
+
+Used for:
+
+* IXP registry
+* Member counts
+* Geographic locations
+* Exchange metadata
+
+## CAIDA AS-Rank
+
+Used for:
+
+* ASN rankings
+* Customer cone analysis
+* Route concentration metrics
+* Top operator identification
+
+## TeleGeography
+
+Used for:
+
+* Submarine cable routes
+* Cable metadata
+* Landing-point coordinates
+* Cable-to-landing-point intelligence
+
+Landing-point associations are generated through geographic spatial matching between cable route endpoints and TeleGeography landing-point coordinates.
 
 ---
 
-## Data Sources
+# API Endpoints
 
-- **PeeringDB** (live) — IXP registry, member counts, locations
-- **CAIDA AS-Rank** (mock enrichment) — ASN prefix counts
-- **TeleGeography** (mock) — Submarine cable routes; no public event-level API
+| Endpoint                          | Description                   |
+| --------------------------------- | ----------------------------- |
+| GET /api/ixps/geojson             | IXP GeoJSON data              |
+| GET /api/cables/geojson           | Submarine cable GeoJSON       |
+| GET /api/asns                     | ASN intelligence data         |
+| GET /api/metrics/concentration    | HHI and concentration metrics |
+| GET /api/intelligence/sidebar     | Sidebar intelligence          |
+| GET /api/intelligence/ixp/{id}    | Per-IXP intelligence          |
+| GET /api/simulation/route-failure | Route failure simulation      |
+| GET /api/download/sample          | CSV export                    |
+
+---
+
+# Intelligence Metrics
+
+The dashboard provides:
+
+* Top-5 ASN control percentage
+* Top-10 ASN control percentage
+* Herfindahl–Hirschman Index (HHI)
+* IXP member concentration risk
+* Infrastructure dependency indicators
+* Cable proximity intelligence
+* ASN route concentration analysis
+
+---
+
+# Real Rails DNA Compliance
+
+| Requirement                           | Status |
+| ------------------------------------- | ------ |
+| Dark intelligence dashboard theme     | ✅      |
+| Interactive global infrastructure map | ✅      |
+| Sidebar intelligence panel            | ✅      |
+| Live filtering without refresh        | ✅      |
+| Glassmorphism UI elements             | ✅      |
+| Cyan highlight effects                | ✅      |
+| No hardcoded API keys                 | ✅      |
+| FastAPI backend                       | ✅      |
+| Next.js frontend                      | ✅      |
+| PeeringDB integration                 | ✅      |
+| CAIDA AS-Rank integration             | ✅      |
+| TeleGeography integration             | ✅      |
+| Landing-point spatial matching        | ✅      |
+| Infrastructure intelligence panels    | ✅      |
+| Route failure simulation              | ✅      |
+
+---
+
+# Project Goal
+
+This PoC demonstrates how multiple public internet infrastructure datasets can be combined into a single intelligence platform that visualizes:
+
+* Internet exchange concentration
+* Global routing dependencies
+* Submarine cable infrastructure
+* Network operator influence
+* Infrastructure risk exposure
+
+The platform is designed to support infrastructure intelligence, resilience analysis, and strategic network visibility.
