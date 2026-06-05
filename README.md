@@ -182,7 +182,7 @@ Landing-point associations are generated through geographic spatial matching bet
 | GET /api/asns                     | ASN intelligence data         |
 | GET /api/metrics/concentration    | HHI and concentration metrics |
 | GET /api/intelligence/sidebar     | Sidebar intelligence          |
-| GET /api/intelligence/ixp/{id}    | Per-IXP intelligence          |
+| GET /api/ixps/{ixp_id}/intelligence   | Per-IXP intelligence          |
 | GET /api/simulation/route-failure | Route failure simulation      |
 | GET /api/download/sample          | CSV export                    |
 
